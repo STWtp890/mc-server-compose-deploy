@@ -35,8 +35,9 @@ services:
         condition: service_completed_successfully
     healthcheck:
       test: mc-health
-      start_period: 1m
-      interval: 5s
+      start_period: 5m
+      start_interval: 10s
+      interval: 10s
       retries: 20
     restart: unless-stopped
     stdin_open: true
@@ -52,7 +53,7 @@ services:
     volumes:
       - ./servers/${SERVER_NAME}/server:/data
     ports:
-      - "${MC_PORT:?'[MC-Server] 未设置 MC_PORT.'}:25565" # Minecraft Server Port (default)
+      - "${MC_SERVER_PORT:?'[MC-Server] 未设置 MC_SERVER_PORT.'}:25565" # Minecraft Server Port (default)
       - "${MC_RCON_PORT:?'[MC-Server] 未设置 MC_RCON_PORT.'}:25575" # RCON Port (default)
     networks:
       mc-network:
@@ -192,7 +193,6 @@ services:
 
       - GF_EXPLORE_ENABLE=true
     volumes:
-      - ./compose/config/grafana/dashboards:/etc/grafana/dashboards:ro
       - ./compose/config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - ./compose/config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - ./servers/${SERVER_NAME}/grafana/data:/var/lib/grafana
