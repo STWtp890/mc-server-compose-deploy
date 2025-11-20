@@ -35,15 +35,15 @@ SERVER_NAME="mc-docker"
 /docker-compose
 ├── /compose
 ├── /servers
-│   ├── /example_server_name
+│   ├── /example_server_name    <-- 这里是新的服务器名称
 │   │   ├── /prometheus
 │   │   ├── /grafana
-│   │   ├── /server
+│   │   ├── /server     <-- 这里存放服务器文件
 │   │   └── /server-backups
-│   └── /another_server_name
+│   └── /another_server_name    <-- 这里是新的服务器名称
 │       ├── /prometheus
 │       ├── /grafana
-│       ├── /server
+│       ├── /server     <-- 这里存放服务器文件
 │       └── /server-backups
 ├── /.env
 ├── /docker-compose.yml
