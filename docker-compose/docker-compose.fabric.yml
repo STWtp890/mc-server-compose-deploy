@@ -1,0 +1,12 @@
+x-FABRIC:
+  environment: &FABRIC_ENV
+    MC_VERSION: ${MC_VERSION:?'[Param set] No MC_VERSION set.'}
+
+    TYPE: "FABRIC"
+    FABRIC_LOADER_VERSION: "${FABRIC_LOADER_VERSION:-latest}"
+    FABRIC_LAUNCHER_VERSION: "${FABRIC_LAUNCHER_VERSION:-latest}"
+services:
+  # ______ Minecraft Server ______
+  mc-server:
+    environment:
+      <<: *FABRIC_ENV

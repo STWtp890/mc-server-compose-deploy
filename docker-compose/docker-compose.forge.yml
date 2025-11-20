@@ -1,0 +1,11 @@
+x-FORGE:
+  environment: &FORGE_ENV
+    MC_VERSION: ${MC_VERSION:?'[Param set] No MC_VERSION set.'}
+    TYPE: "FORGE"
+    FORGE_VERSION: "${FORGE_VERSION:-latest}"
+
+services:
+  # ______ Minecraft Server ______
+  mc-server:
+    environment:
+      <<: *FORGE_ENV

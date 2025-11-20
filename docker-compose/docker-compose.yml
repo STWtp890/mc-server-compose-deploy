@@ -1,0 +1,217 @@
+# ./mc-server-compose-deploy/docker-compose.yml
+name: ${SERVER_NAME:?'[Param set] No SERVER_NAME set.'}
+services:
+  mc-restore-backup:
+    # [______ MC Restore Backup ______]
+    #
+    # It will restore the latest backup if there is no existing server folder
+    image: itzg/mc-backup:latest
+    container_name: mc-restore-backup
+    restart: no
+    entrypoint: restore-tar-backup
+    volumes:
+      - ./servers/${SERVER_NAME}/server:/data
+      - ./servers/${SERVER_NAME}/server-backups:/backups
+    networks:
+      - mc-network
+
+  mc-server:
+    # [______ MC Server ______]
+    #
+    # About mc-server Environments:
+    # It should be extended by docker compose `-f` sub command.
+    #
+    # example for Forge & server.properties:
+    # ```
+    # docker compose -f docker-compose.yml
+    # -f docker-compose.forge.yml
+    # -f docker-compose.properties.yml
+    # up -d
+    # ```
+    image: itzg/minecraft-server:latest
+    container_name: mc-server
+    depends_on:
+      mc-restore-backup:
+        condition: service_completed_successfully
+    healthcheck:
+      test: mc-health
+      start_period: 1m
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    environment:
+      EULA: TRUE
+      VERSION: ${MC_VERSION:?'[MC-Server] 未设置 MC_VERSION.'}
+      INIT_MEMORY: ${INIT_MEMORY:?'[MC-Server] 未设置 INIT_MEMORY.'}
+      MAX_MEMORY: ${MAX_MEMORY:?'[MC-Server] 未设置 MAX_MEMORY.'}
+
+      GUI: false
+      STOP_SERVER_ANNOUNCE_DELAY: ${STOP_SERVER_ANNOUNCE_DELAY:?'[MC-Server] 未设置 STOP_SERVER_ANNOUNCE_DELAY.'}
+    volumes:
+      - ./servers/${SERVER_NAME}/server:/data
+    ports:
+      - "${MC_PORT:?'[MC-Server] 未设置 MC_PORT.'}:25565" # Minecraft Server Port (default)
+      - "${MC_RCON_PORT:?'[MC-Server] 未设置 MC_RCON_PORT.'}:25575" # RCON Port (default)
+    networks:
+      mc-network:
+        aliases:
+          - mc-server
+      mc-internal-network:
+        aliases:
+          - mc-server-internal
+
+  mc-backup:
+    # [______ MC Backup ______]
+    image: itzg/mc-backup:latest
+    container_name: mc-backup
+    depends_on:
+      mc-server:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      SRC_DIR: /data
+      DEST_DIR: /backups
+      RCON_HOST: mc-server
+      RCON_PORT: ${MC_RCON_PORT}
+      RCON_PASSWORD: ${RCON_PASSWORD:?'[MC-Backup] 未设置 RCON_PASSWORD.'}
+      CRON_SCHEDULE: 0 0 0,6,12,18 * * ? *
+    volumes:
+      - ./servers/${SERVER_NAME}/server:/data
+      - ./servers/${SERVER_NAME}/server-backups:/backups
+    networks:
+      - mc-network
+
+  mc-monitor:
+    # [______ MC Monitor ______]
+    image: itzg/mc-monitor:latest
+    container_name: mc-monitor
+    depends_on:
+      mc-server:
+        condition: service_started
+    restart: unless-stopped
+    command:
+      - export-for-prometheus
+      - -servers=mc-server:25565
+      - -port=8889
+      - -timeout=1m
+    environment:
+      DEBUG: "true"
+    networks:
+      mc-internal-network:
+        aliases:
+          - mc-monitor-internal
+
+  mc-cadvisor:
+    # [______ Cadvisor (Docker) ______]
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: mc-cadvisor
+    depends_on:
+      mc-server:
+        condition: service_started
+    restart: unless-stopped
+    command:
+      - --port=8888
+      - --housekeeping_interval=10s # 采样周期 10 秒
+      - --max_housekeeping_interval=60s
+      - --global_housekeeping_interval=60s
+      - --allow_dynamic_housekeeping=false # 固定 10 s，不自动降频
+      - --disable_metrics=tcp,udp,percpu,hugetlb,process,referenced_memory
+      - --docker_only=true # 只监控 Docker，节省开销
+      - --store_container_labels=false # 不保存容器标签，减少基数
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro # CPU 和 内存 使用情况
+      - /var/run:/var/run:ro # 容器列表延迟 与 新增容器检测
+      - /dev/disk:/dev/disk:ro # 磁盘使用情况
+      - /var/lib/docker:/var/lib/docker:ro # Docker 镜像和容器信息
+    devices:
+      - /dev/kmsg
+    privileged: true
+    networks:
+      mc-internal-network:
+        aliases:
+          - mc-cadvisor-internal
+
+  mc-prometheus:
+    # [______ MC Prometheus ______]
+    image: prom/prometheus:latest
+    container_name: mc-prometheus
+    depends_on:
+      mc-monitor:
+        condition: service_started
+      mc-cadvisor:
+        condition: service_started
+    restart: unless-stopped
+    volumes:
+      - ./compose/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./servers/${SERVER_NAME}/prometheus:/prometheus
+    command:
+    
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      # - --web.listen-address=0.0.0.0:9090
+      # - --web.enable-lifecycle
+      # - --web.enable-admin-api
+    # ports:
+      # - "19090:9090" # Prometheus Web UI
+      # - "8888:8888" # Cadvisor Metrics 端点
+      # - "8889:8889" # MC Monitor Metrics 端点
+    networks:
+      # mc-network:
+      #   aliases:
+      #     - mc-prometheus
+      mc-internal-network:
+        aliases:
+          - mc-prometheus-internal
+
+  mc-grafana:
+    # [______ MC Grafana ______]
+    image: grafana/grafana:latest
+    container_name: mc-grafana
+    depends_on:
+      mc-prometheus:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      - GF_DEFAULT_LOCALE=zh-CN
+      - GF_VIEWER_LANGUAGE=zh-CN
+
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=false
+
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+
+      - GF_SERVER_HTTP_PORT=13000
+
+      - GF_USERS_ALLOW_SIGN_UP=true
+      - GF_DASHBOARDS_ALLOW_ADMIN=true
+
+      - GF_EXPLORE_ENABLE=true
+    volumes:
+      - ./compose/config/grafana/dashboards:/etc/grafana/dashboards:ro
+      - ./compose/config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./compose/config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./servers/${SERVER_NAME}/grafana/data:/var/lib/grafana
+    ports:
+      - "13000:13000" # Grafana Web UI
+    networks:
+      mc-network:
+        aliases:
+          - mc-grafana
+      mc-internal-network:
+        aliases:
+          # - mc-grafana
+          - mc-grafana-internal
+
+networks:
+  mc-network:
+    name: mc-network
+    driver: bridge
+  mc-internal-network:
+    name: mc-internal-network
+    driver: bridge
+    internal: true

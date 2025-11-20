@@ -1,0 +1,11 @@
+x-NEOFORGE:
+  environment: &NEOFORGE_ENV
+    MC_VERSION: ${MC_VERSION:?'[Param set] No MC_VERSION set.'}
+    TYPE: "NEOFORGE"
+    NEOFORGE_VERSION: "${NEOFORGE_VERSION:-latest}"
+
+services:
+  # ______ Minecraft Server ______
+  mc-server:
+    environment:
+      <<: *NEOFORGE_ENV

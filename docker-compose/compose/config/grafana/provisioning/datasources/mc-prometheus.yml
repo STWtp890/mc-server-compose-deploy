@@ -1,0 +1,8 @@
+# /etc/grafana/provisioning/datasources/default.yaml
+apiVersion: 1
+datasources:
+  - name: MC-Prometheus
+    type: prometheus
+    access: proxy
+    url: http://mc-prometheus:9090
+    isDefault: true
