@@ -67,6 +67,16 @@ docker compose -f docker-compose.yml -f docker-compose.{mod_loader_type}.yml -f 
 docker compose -f docker-compose.yml -f docker-compose.properties.yml up -d
 ```
 
+### 2.4. 关于端口
+
+默认情况下, 服务器在本地网络中会暴露以下端口:
+
+| 端口号   | 服务内容            | 说明                    |
+|-------|-----------------|-----------------------|
+| 25565 | Minecraft 游戏端口  | Minecraft 客户端连接服务器端口  |
+| 25575 | RCON 远程控制端口     | 远程控制 Minecraft 服务器的端口 |
+| 13000 | Grafana 可视化界面端口 | 访问 Grafana 监控数据的端口    |
+
 ## 3. 容器间关系
 
 ### 3.1. 容器网络
