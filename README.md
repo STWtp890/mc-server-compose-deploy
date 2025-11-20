@@ -47,7 +47,11 @@
 
 在启动脚本没实现的情况下, 可先使用相关 `docker compose` 命令实现.
 
-如果你拥有 ***Docker*** 的使用经验或者 ***Shell*** 的相关命令行使用经验, 你可以在 *Linux* 或 *Windows* 中使用 ***Shell*** 或 ***Docker Desktop*** 的命令行输入:
+如果你拥有 ***Docker*** 的使用经验或者 ***Shell*** 的相关命令行使用经验, 你可以在 *Linux* 或 *Windows* 中使用 ***Shell*** 或 ***Docker Desktop*** 的命令行启动.
+
+你需要: 
+ - 将终端的路径切换到本项目的 `/docker-compose/` 文件夹下. 尝试终端输入 `cd {/your/path/to/project/docker-compose/}` 进行路径切换.
+ - 执行以下命令:
 
 #### 2.3.1. *启动模组 Java 服务器 (forge/neoforge/fabric):*
 
