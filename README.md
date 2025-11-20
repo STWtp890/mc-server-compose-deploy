@@ -40,8 +40,12 @@
 
 ### 2.2. 关于配置
 
-如果你需要自定义服务器参数, 参考链接 🔗[docker-minecraft-server:variables](https://docker-minecraft-server.readthedocs.io/en/latest/variables/) 中关于 Server 部分的 ***参数详情***,
+如果你需要自定义服务器参数, 参考链接 *🔗[docker-minecraft-server:variables](https://docker-minecraft-server.readthedocs.io/en/latest/variables/)* 中关于 Server 部分的 ***参数详情***,
 并尝试修改 `./docker-compose/` 文件夹下 `docker-compose.properties.yml` 配置文件内关于 `environment: &PROPERTIES_ENV` 的参数.
+
+在启动前, 你需要确认你要启动的 MC-Server 版本, 并修改 `.env` 文件内的 `MC_VERSION` 变量.
+
+如果你需要使用模组服务器, 或者加载现有的服务器, 请参阅 *🔗[如何启动现有服务器](./docker-compose/servers/README.md)* 中的说明进行相关操作.
 
 ### 2.3. 关于启动
 
@@ -50,7 +54,7 @@
 如果你拥有 ***Docker*** 的使用经验或者 ***Shell*** 的相关命令行使用经验, 你可以在 *Linux* 或 *Windows* 中使用 ***Shell*** 或 ***Docker Desktop*** 的命令行启动.
 
 你需要: 
- - 将终端的路径切换到本项目的 `/docker-compose/` 文件夹下. 尝试终端输入 `cd {/your/path/to/project/docker-compose/}` 进行路径切换.
+ - 将终端的路径切换到本项目的 `./docker-compose/` 文件夹下. 尝试使用终端打开该文件夹, 或终端输入 `cd {/your/path/to/project/docker-compose/}` 进行路径切换.
  - 执行以下命令:
 
 #### 2.3.1. *启动模组 Java 服务器 (forge/neoforge/fabric):*
