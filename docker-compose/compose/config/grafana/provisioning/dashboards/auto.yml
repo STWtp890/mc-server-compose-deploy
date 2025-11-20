@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: 'MC服务器监控指标'           # 任意唯一名
+    orgId: 1                  # 组织 ID
+    type: file
+    disableDeletion: true    # 设为 true 则禁止从 UI 删除
+    updateIntervalSeconds: 600 # 每 10 分钟扫描一次变更
+    allowUiUpdates: true      # 允许在 UI 里微调并保存
+    options:
+      path: /etc/grafana/provisioning/dashboards   # 与第 1 步容器内路径保持一致
+      foldersFromFilesStructure: true     # 用子目录当 Folder

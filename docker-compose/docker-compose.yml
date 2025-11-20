@@ -193,8 +193,7 @@ services:
 
       - GF_EXPLORE_ENABLE=true
     volumes:
-      - ./compose/config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
-      - ./compose/config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./compose/config/grafana/provisioning:/etc/grafana/provisioning
       - ./servers/${SERVER_NAME}/grafana/data:/var/lib/grafana
     ports:
       - "13000:13000" # Grafana Web UI
