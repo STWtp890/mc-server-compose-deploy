@@ -58,7 +58,7 @@
  - 执行以下命令:
 
 #### 2.3.1. *启动模组 Java 服务器 (forge/neoforge/fabric):*
-
+在 `./docker-compose` 文件夹下执行以下命令:
 ```shell
 docker compose -f docker-compose.yml -f docker-compose.{mod_loader_type}.yml -f docker-compose.properties.yml up -d
 ```
@@ -66,7 +66,7 @@ docker compose -f docker-compose.yml -f docker-compose.{mod_loader_type}.yml -f 
 - `{mod_loader_type}` 应替换为你想使用的 ***ModLoader*** 类型 (`forge`/`neoForge`/`fabric`)
 
 #### 2.3.2. *启动原版 Java 服务器 (vanilla):*
-
+在 `./docker-compose` 文件夹下执行以下命令:
 ```shell
 docker compose -f docker-compose.yml -f docker-compose.properties.yml up -d
 ```
