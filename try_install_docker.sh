@@ -25,3 +25,5 @@ if ! [ -x "$(command -v docker compose)" ]; then
     exit 1
   }
 fi
+
+exit 0
