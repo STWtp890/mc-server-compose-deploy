@@ -44,6 +44,7 @@ services:
     tty: true
     volumes:
       - ./servers/${SERVER_NAME}/server:/data
+      - ./compose/config/mc-icon:/data/icon
     ports:
       - "${MC_SERVER_PORT:?'[docker-compose][mc-server] 未设置 MC_SERVER_PORT'}:${MC_SERVER_PORT}"
       - "${MC_RCON_PORT:?'[docker-compose][mc-server] 未设置 MC_RCON_PORT.'}:${MC_RCON_PORT}"
