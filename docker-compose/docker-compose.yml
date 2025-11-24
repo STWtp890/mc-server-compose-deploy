@@ -144,17 +144,7 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=7d"
-      # - "--web.listen-address=0.0.0.0:9090"
-      # - "--web.enable-lifecycle"
-      # - '--web.enable-admin-api'
-    # ports:
-      # - "19090:9090" # Prometheus Web UI
-      # - "8888:8888" # Cadvisor Metrics 端点
-      # - "8889:8889" # MC Monitor Metrics 端点
     networks:
-      # mc-network:
-      #   aliases:
-      #     - mc-prometheus
       mc-internal-network:
         aliases:
           - mc-prometheus-internal

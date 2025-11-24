@@ -89,11 +89,13 @@ docker compose -f docker-compose.yml -f docker-compose.{mod_loader_type}.yml -f 
 
 默认情况下, 服务器在本地网络中会暴露以下端口:
 
-| 端口号   | 服务内容            | 说明                    |
-|-------|-----------------|-----------------------|
-| 25565 | Minecraft 游戏端口  | Minecraft 客户端连接服务器端口  |
+| 端口号   | 服务内容            | 说明                   |
+|-------|-----------------|----------------------|
+| 25565 | Minecraft 游戏端口  | Minecraft 客户端连接服务器端口 |
 | 25575 | RCON 远程控制端口     | 远程控制 Minecraft 服务器的端口 |
-| 13000 | Grafana 可视化界面端口 | 访问 Grafana 监控数据的端口    |
+| 13000 | Grafana 可视化界面端口 | 访问 Grafana 监控数据的端口   |
+| 16000 | FRP Client 远程端口 | FRP Server 监听端口      |
+
 
 ### 3.2. 容器网络
 

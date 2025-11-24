@@ -5,7 +5,7 @@ scrape_configs:
   # [______ Cadvisor Docker 监控 ______]
   - job_name: mc-cadvisor
     static_configs:
-    - targets: ['mc-cadvisor:8888']
+    - targets: ['mc-cadvisor:${MC_CADVISOR_PORT}']
     metrics_path: /metrics
     scrape_interval: 20s
     scrape_timeout: 10s
@@ -13,7 +13,7 @@ scrape_configs:
   # [______ MC Monitor 指标 ______]
   - job_name: mc-monitor
     static_configs:
-    - targets: ['mc-monitor:8889']
+    - targets: ['mc-monitor:${MC_MONITOR_PORT}']
     metrics_path: /metrics
     scrape_interval: 20s
     scrape_timeout: 10s
