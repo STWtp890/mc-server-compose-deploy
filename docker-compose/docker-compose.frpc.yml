@@ -1,0 +1,18 @@
+services:
+  mc-frpc:
+    # [______ MC FRP Client ______]
+    image: snowdreamtech/frpc:latest
+    container_name: mc-frpc
+    restart: unless-stopped
+    network_mode: "host"
+    volumes:
+      - ./compose/config/fpc/frpc.yaml:/etc/frp/frpc.yaml:ro
+    command:
+      - "-c /etc/frp/frpc.yaml"
+    networks:
+      mc-network:
+        aliases:
+          - mc-frpc
+      mc-internal-network:
+        aliases:
+          - mc-frpc-internal
