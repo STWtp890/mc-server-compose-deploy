@@ -86,10 +86,10 @@ services:
         condition: service_started
     restart: unless-stopped
     command:
-      - export-for-prometheus
-      - -servers=mc-server:${MC_SERVER_PORT}
-      - -port=${MC_MONITOR_PORT:?'[MC-Monitor] 未设置 MC_MONITOR_PORT.'}
-      - -timeout=1m
+      - "export-for-prometheus"
+      - "-servers=mc-server:${MC_SERVER_PORT}"
+      - "-port=${MC_MONITOR_PORT:?'[MC-Monitor] 未设置 MC_MONITOR_PORT.'}"
+      - "-timeout=1m"
     environment:
       DEBUG: "true"
     networks:
@@ -105,6 +105,11 @@ services:
       mc-server:
         condition: service_started
     restart: unless-stopped
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro # CPU 和 内存 使用情况
+      - /var/run:/var/run:ro # 容器列表延迟 与 新增容器检测
+      - /dev/disk:/dev/disk:ro # 磁盘使用情况
+      - /var/lib/docker:/var/lib/docker:ro # Docker 镜像和容器信息
     command:
       - --port=${MC_CADVISOR_PORT:?'[MC-Cadvisor] 未设置 MC_CADVISOR_PORT.'}
       - --housekeeping_interval=10s # 采样周期 10 秒
@@ -114,11 +119,6 @@ services:
       - --disable_metrics=tcp,udp,percpu,hugetlb,process,referenced_memory
       - --docker_only=true # 只监控 Docker，节省开销
       - --store_container_labels=false # 不保存容器标签，减少基数
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro # CPU 和 内存 使用情况
-      - /var/run:/var/run:ro # 容器列表延迟 与 新增容器检测
-      - /dev/disk:/dev/disk:ro # 磁盘使用情况
-      - /var/lib/docker:/var/lib/docker:ro # Docker 镜像和容器信息
     devices:
       - /dev/kmsg
     privileged: true
@@ -141,13 +141,12 @@ services:
       - ./compose/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./servers/${SERVER_NAME}/prometheus:/prometheus
     command:
-    
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.path=/prometheus
-      - --storage.tsdb.retention.time=7d
-      # - --web.listen-address=0.0.0.0:9090
-      # - --web.enable-lifecycle
-      # - --web.enable-admin-api
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+      # - "--web.listen-address=0.0.0.0:9090"
+      # - "--web.enable-lifecycle"
+      # - '--web.enable-admin-api'
     # ports:
       # - "19090:9090" # Prometheus Web UI
       # - "8888:8888" # Cadvisor Metrics 端点
