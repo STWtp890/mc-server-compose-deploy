@@ -88,7 +88,7 @@ services:
     command:
       - "export-for-prometheus"
       - "-servers=mc-server:${MC_SERVER_PORT}"
-      - "-port=${MC_MONITOR_PORT:?'[MC-Monitor] 未设置 MC_MONITOR_PORT.'}"
+      - "-port=8888"
       - "-timeout=1m"
     environment:
       DEBUG: "true"
@@ -111,7 +111,7 @@ services:
       - /dev/disk:/dev/disk:ro # 磁盘使用情况
       - /var/lib/docker:/var/lib/docker:ro # Docker 镜像和容器信息
     command:
-      - --port=${MC_CADVISOR_PORT:?'[MC-Cadvisor] 未设置 MC_CADVISOR_PORT.'}
+      - --port=8889
       - --housekeeping_interval=10s # 采样周期 10 秒
       - --max_housekeeping_interval=60s
       - --global_housekeeping_interval=60s
@@ -170,7 +170,7 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=false
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
 
-      - GF_SERVER_HTTP_PORT=${GF_SERVER_HTTP_PORT:?'[MC-Grafana] 未设置 GF_SERVER_HTTP_PORT.'}
+      - GF_SERVER_HTTP_PORT=3000
 
       - GF_USERS_ALLOW_SIGN_UP=true
       - GF_DASHBOARDS_ALLOW_ADMIN=true
@@ -180,7 +180,7 @@ services:
       - ./compose/config/grafana/provisioning:/etc/grafana/provisioning
       - ./servers/${SERVER_NAME}/grafana/data:/var/lib/grafana
     ports:
-      - "${GF_SERVER_HTTP_PORT}:${GF_SERVER_HTTP_PORT}" # Grafana Web UI
+      - ${GF_SERVER_HTTP_PORT}:3000 # Grafana Web UI
     networks:
       mc-network:
         aliases:
