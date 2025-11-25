@@ -15,7 +15,7 @@ x-PROPERTIES:
     VERSION: ${MC_VERSION:?'[docker-compose.properties] 未设置 MC_VERSION.'} # Minecraft 版本
     MOTD: "A Minecraft Server build by Docker-Compose"
     DIFFICULTY: "hard"
-    ICON: /icon/${MC_SERVER_ICON_NAME:-"./icon.png"}  # 服务器图标路径 (相对于 /data 目录)，留空则不使用图标
+    ICON: ./icon/${MC_SERVER_ICON_NAME:-"./icon.png"}  # 服务器图标路径 (相对于 /data 目录)，留空则不使用图标
     OVERRIDE_ICON: true
     FORCE_GAMEMODE: true
     HARDCORE: false
