@@ -9,16 +9,16 @@
 
 ## 1. 计划完成情况
 
-- [x] ~~基于 `itzg/mc-server` 的 Minecraft 服务器最小启动~~
-- [x] ~~基于 `itzg/mc-backup` 的备份与恢复~~
-- [x] ~~基于 `itzg/mc-monitor` 的服务器状态监控: `collect-otel`~~
-- [x] ~~基于 `otel/opentelemetry-collector-contrib` 的服务器状态数据接收~~
-- [x] ~~基于 `gcr.io/cadvisor/cadvisor` 的 Docker 运行状态监控~~
-- [x] ~~基于 `prom/prometheus` 的内部监控管道~~
-- [x] ~~基于 `grafana/grafana` 的监控数据可视化~~
-- [x] ~~预置 grafana dashboards 可视化模板~~
-- [ ] 基于 `snowdreamtech/frpc` 的自定义反向代理客户端(FRP Client) 
-- [ ] 容器操作脚本(启动, 停止)
+- ✅ ~~基于 `itzg/mc-server` 的 Minecraft 服务器最小启动~~
+- ✅ ~~基于 `itzg/mc-backup` 的备份与恢复~~
+- ✅ ~~基于 `itzg/mc-monitor` 的服务器状态监控: `collect-otel`~~
+- ✅ ~~基于 `otel/opentelemetry-collector-contrib` 的服务器状态数据接收~~
+- ✅ ~~基于 `gcr.io/cadvisor/cadvisor` 的 Docker 运行状态监控~~
+- ✅ ~~基于 `prom/prometheus` 的内部监控管道~~
+- ✅ ~~基于 `grafana/grafana` 的监控数据可视化~~
+- ✅ ~~预置 grafana dashboards 可视化模板~~
+- ✅ ~~基于 `snowdreamtech/frpc` 的自定义反向代理客户端(FRP Client)~~
+- ⬜ 容器操作脚本(启动, 停止)
 
 ---
 
@@ -40,22 +40,15 @@
 
 ### 2.2. 关于配置
 
-#### 2.2.1. env文件
-
-`.env` 文件内包含了本项目的所需要的环境变量配置. 
-
-- `MC_VERSION`: 在启动前, 你需要确认你要启动的 MC-Server 版本, 并修改 `.env` 文件内的 `MC_VERSION` 变量.
-
-#### 2.2.2. Server Properties
-
-在`docker-compose.properties.yml` 中可以配置 `server.properties` 的服务器参数 
-
-- `服务器参数`: 如果你需要自定义服务器参数, 参考链接 ***[🔗docker-minecraft-server.readthedocs.io](https://docker-minecraft-server.readthedocs.io/en/latest/variables/)*** 中关于 Server 部分的 ***参数详情(Variables)***,
+1. ENV 文件: `.env` 文件内包含了本项目的所需要的环境变量配置. 
   
-  并尝试修改 `./docker-compose` 文件夹下的 `docker-compose.properties.yml` 配置文件参数.
+    - `MC_VERSION`: 在启动前, 你至少需要确认你要启动的 MC-Server 版本, 并修改 `.env` 文件内的 `MC_VERSION` 变量.
 
+2. Server Properties: 在`docker-compose.properties.yml` 中可以配置 `server.properties` 的服务器参数 
 
-- `模组加载器`: 如果你需要使用模组服务器, 或者加载现有的服务器, 请参阅 ***[🔗如何启动现有服务器](./docker-compose/servers/README.md)*** 中的说明进行相关操作.
+    - `Properties`: 如果你需要自定义服务器参数, 参考链接 ***[🔗docker-minecraft-server.readthedocs.io](https://docker-minecraft-server.readthedocs.io/en/latest/variables/)*** 中关于 Server 部分的 ***参数详情(Variables)***, 并尝试修改 `./docker-compose` 文件夹下的 `docker-compose.properties.yml` 配置文件参数.
+
+    - `Mod Loader`: 如果你需要使用模组服务器, 或者加载现有的服务器, 请参阅 ***[🔗如何启动现有服务器](./docker-compose/servers/README.md)*** 中的说明进行相关操作.
 
 ### 2.3. 关于启动
 
@@ -65,19 +58,31 @@
 
 `docker-compose.yml` 等文件位于 `./docker-compose` 下, 这意味着你需要将终端的路径切换到本项目的 `./docker-compose` 文件夹. 例如使用 `cd` 命令, 或通过终端直接打开该路径.
 
-#### 2.3.1. *启动原版 Java 服务器 (vanilla):*
-在 `./docker-compose` 文件夹下执行以下命令:
-```shell
-docker compose -f docker-compose.yml -f docker-compose.properties.yml up -d
-```
+1. *启动原版 Java 服务器 (vanilla):*
+    在 `./docker-compose` 文件夹下执行以下命令:
+    ```shell
+    docker compose -f docker-compose.yml -f docker-compose.properties.yml up -d
+    ```
 
-#### 2.3.2. *启动模组 Java 服务器 (forge/neoforge/fabric):*
-在 `./docker-compose` 文件夹下执行以下命令:
-```shell
-docker compose -f docker-compose.yml -f docker-compose.{mod_loader_type}.yml -f docker-compose.properties.yml up -d
-```
-其中:
-- `{mod_loader_type}` 应替换为你想使用的 ***ModLoader*** 类型 (`forge`/`neoForge`/`fabric`)
+2. *启动模组 Java 服务器 (forge/neoforge/fabric):*
+    在 `./docker-compose` 文件夹下执行以下命令:
+    ```shell
+    docker compose -f docker-compose.yml -f docker-compose.{mod_loader_type}.yml -f docker-compose.properties.yml up -d
+    ```
+    其中:
+    - `{mod_loader_type}` 应替换为你想使用的 ***ModLoader*** 类型 (`forge`/`neoForge`/`fabric`)
+
+3. *启动带有 FRP Client 的服务器:*
+    在 `./docker-compose` 文件夹下执行以下命令:
+    ```shell
+    docker compose -f docker-compose.yml -f docker-compose.properties.yml -f docker-compose.frpc.yml up -d
+    ```
+
+参数总览:
+- `-f docker-compose.yml`: 启动必选
+- `-f docker-compose.properties.yml`: 启动必选
+- `-f docker-compose.{mod_loader_type}.yml`: 模组服务器配置可选
+- `-f docker-compose.frpc.yml`: 自行内网穿透可选
 
 ---
 
@@ -85,7 +90,7 @@ docker compose -f docker-compose.yml -f docker-compose.{mod_loader_type}.yml -f 
 
 ### 3.1. 关于端口
 
-在使用如 ***SakuraFRP***, ***花生壳***, ***Astral*** 等提供联机的类似网络服务时, 可以使用的端口如下.
+在使用如 ***SakuraFRP***, ***花生壳***, ***Astral*** , 自建云服务器或者其它提供联机的类似网络服务时, 可以使用的端口如下.
 
 默认情况下, 服务器在本地网络中会暴露以下端口:
 
