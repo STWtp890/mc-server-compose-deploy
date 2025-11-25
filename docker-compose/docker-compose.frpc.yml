@@ -4,15 +4,17 @@ services:
     image: snowdreamtech/frpc:latest
     container_name: mc-frpc
     restart: unless-stopped
-    network_mode: "host"
+    command: ["frpc", "-c", "/etc/frp/frpc.toml"]
     volumes:
-      - ./compose/config/fpc/frpc.yaml:/etc/frp/frpc.yaml:ro
-    command:
-      - "-c /etc/frp/frpc.yaml"
+      - ./compose/config/frpc/frpc.toml:/etc/frp/frpc.toml
+    environment:
+      MC_SERVER_PORT: ${MC_SERVER_PORT}
+      MC_RCON_PORT: ${MC_RCON_PORT}
+      GF_SERVER_HTTP_PORT: ${GF_SERVER_HTTP_PORT}
+      REMOTE_MC_SERVER_PORT: ${REMOTE_MC_SERVER_PORT}
+      REMOTE_MC_RCON_PORT: ${REMOTE_MC_RCON_PORT}
+      REMOTE_GF_SERVER_HTTP_PORT: ${REMOTE_GF_SERVER_HTTP_PORT}
     networks:
       mc-network:
         aliases:
           - mc-frpc
-      mc-internal-network:
-        aliases:
-          - mc-frpc-internal
