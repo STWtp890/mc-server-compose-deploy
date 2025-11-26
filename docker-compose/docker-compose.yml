@@ -44,17 +44,13 @@ services:
     tty: true
     volumes:
       - ./servers/${MC_SERVER_NAME}/server:/data
-      - ./compose/config/mc-icon/${MC_SERVER_ICON_NAME:-"me.png"}:/data/${MC_SERVER_ICON_NAME:-"me.png"}:rw
     environment:
       EULA: true
       VERSION: ${MC_VERSION:?'[docker-compose.properties] 未设置 MC_VERSION.'} # Minecraft 版本
-      
       INIT_MEMORY: ${MC_INIT_MEMORY:?'[docker-compose.properties] 未设置 MC_INIT_MEMORY.'}
       MAX_MEMORY: ${MC_MAX_MEMORY}
-      
-      SERVER_NAME: ${MC_SERVER_NAME:?'[docker-compose.properties] 未设置 SERVER_NAME.'}
+      SERVER_NAME: ${MC_SERVER_NAME:?'[docker-compose.properties] 未设置 MC_SERVER_NAME.'}
       SERVER_PORT: ${MC_SERVER_PORT:?'[docker-compose.properties] 未设置 MC_SERVER_PORT.'}
-      
       ENABLE_RCON: true
       RCON_PASSWORD: ${RCON_PASSWORD:?'[docker-compose] 未设置 RCON_PASSWORD.'}
       RCON_PORT: ${MC_RCON_PORT:?'[docker-compose] 未设置 MC_RCON_PORT.'}
@@ -174,21 +170,16 @@ services:
     environment:
       - GF_DEFAULT_LOCALE=zh-CN
       - GF_VIEWER_LANGUAGE=zh-CN
-
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_SECURITY_ALLOW_EMBEDDING=true
       - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=false
-
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_DISABLE_LOGIN_FORM=false
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
-
       - GF_SERVER_HTTP_PORT=3000
-
       - GF_USERS_ALLOW_SIGN_UP=true
       - GF_DASHBOARDS_ALLOW_ADMIN=true
-
       - GF_EXPLORE_ENABLE=true
     volumes:
       - ./compose/config/grafana/provisioning:/etc/grafana/provisioning

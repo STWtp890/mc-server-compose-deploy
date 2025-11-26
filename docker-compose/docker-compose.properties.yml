@@ -9,9 +9,9 @@ x-PROPERTIES:
     #   2. 将所有列名中的中间连字符 (-) 替换为下划线 (_)。
     #  例如:
 
-    ICON: ./${MC_SERVER_ICON_NAME:-'./me.png'}  # 服务器图标路径 (相对于 /data 目录)，留空则不使用图标
+    ICON: ./${MC_SERVER_ICON_NAME}  # 服务器图标路径 (相对于 /server 目录)
     OVERRIDE_ICON: true
-    MOTD: "${SERVER_NAME} A Minecraft Server build by Docker-Compose"
+    MOTD: "${MC_SERVER_NAME} A Minecraft Server build by Docker-Compose"
 
 #    DIFFICULTY: "hard"
 #    FORCE_GAMEMODE: true
