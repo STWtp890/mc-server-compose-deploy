@@ -1,5 +1,5 @@
 # ./mc-server-compose-deploy/docker-compose.yml
-name: ${SERVER_NAME:?'[Param set] No SERVER_NAME set.'}
+name: ${MC_SERVER_NAME:?'[Param set] No SERVER_NAME set.'}
 services:
   mc-restore-backup:
     # [______ MC Restore Backup ______]
@@ -10,8 +10,8 @@ services:
     restart: no
     entrypoint: restore-tar-backup
     volumes:
-      - ./servers/${SERVER_NAME}/server:/data
-      - ./servers/${SERVER_NAME}/server-backups:/backups
+      - ./servers/${MC_SERVER_NAME}/server:/data
+      - ./servers/${MC_SERVER_NAME}/server-backups:/backups
     networks:
       - mc-network
 
@@ -43,8 +43,22 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./servers/${SERVER_NAME}/server:/data
-      - ./compose/config/mc-icon:/data/icon
+      - ./servers/${MC_SERVER_NAME}/server:/data
+      - ./compose/config/mc-icon/${MC_SERVER_ICON_NAME:-"me.png"}:/data/${MC_SERVER_ICON_NAME:-"me.png"}:rw
+    environment:
+      EULA: true
+      VERSION: ${MC_VERSION:?'[docker-compose.properties] 未设置 MC_VERSION.'} # Minecraft 版本
+      
+      INIT_MEMORY: ${MC_INIT_MEMORY:?'[docker-compose.properties] 未设置 MC_INIT_MEMORY.'}
+      MAX_MEMORY: ${MC_MAX_MEMORY}
+      
+      SERVER_NAME: ${MC_SERVER_NAME:?'[docker-compose.properties] 未设置 SERVER_NAME.'}
+      SERVER_PORT: ${MC_SERVER_PORT:?'[docker-compose.properties] 未设置 MC_SERVER_PORT.'}
+      
+      ENABLE_RCON: true
+      RCON_PASSWORD: ${RCON_PASSWORD:?'[docker-compose] 未设置 RCON_PASSWORD.'}
+      RCON_PORT: ${MC_RCON_PORT:?'[docker-compose] 未设置 MC_RCON_PORT.'}
+      BROADCAST_RCON_TO_OPS: true
     ports:
       - "${MC_SERVER_PORT:?'[docker-compose][mc-server] 未设置 MC_SERVER_PORT'}:${MC_SERVER_PORT}"
       - "${MC_RCON_PORT:?'[docker-compose][mc-server] 未设置 MC_RCON_PORT.'}:${MC_RCON_PORT}"
@@ -72,8 +86,8 @@ services:
       RCON_PASSWORD: ${RCON_PASSWORD:?'[MC-Backup] 未设置 RCON_PASSWORD.'}
       CRON_SCHEDULE: ${CRON_SCHEDULE:?'[MC-Backup] 未设置 CRON_SCHEDULE.'} # 例：0 */6 * * * 每 6 小时备份一次
     volumes:
-      - ./servers/${SERVER_NAME}/server:/data
-      - ./servers/${SERVER_NAME}/server-backups:/backups
+      - ./servers/${MC_SERVER_NAME}/server:/data
+      - ./servers/${MC_SERVER_NAME}/server-backups:/backups
     networks:
       - mc-network
 
@@ -139,7 +153,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./compose/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./servers/${SERVER_NAME}/prometheus:/prometheus
+      - ./servers/${MC_SERVER_NAME}/prometheus:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -178,7 +192,7 @@ services:
       - GF_EXPLORE_ENABLE=true
     volumes:
       - ./compose/config/grafana/provisioning:/etc/grafana/provisioning
-      - ./servers/${SERVER_NAME}/grafana/data:/var/lib/grafana
+      - ./servers/${MC_SERVER_NAME}/grafana/data:/var/lib/grafana
     ports:
       - ${GF_SERVER_HTTP_PORT}:3000 # Grafana Web UI
     networks:
