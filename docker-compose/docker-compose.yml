@@ -1,10 +1,44 @@
 # ./mc-server-compose-deploy/docker-compose.yml
 name: ${MC_SERVER_NAME:?'[Param set] No SERVER_NAME set.'}
+
+x-PROPERTIES:
+  environment: &PROPERTIES_ENV
+#     ______ Minecraft 'server.properties' 参数 ______
+#     参阅链接 -> https://docker-minecraft-server.readthedocs.io/en/latest/variables/
+#     参阅链接 -> https://minecraft.wiki/w/Server.properties
+#     在这里设置 'server.properties' 参数
+#     简易列名转换规则：
+#       1. 将所有列名替换为大写字母 (A-Z).
+#       2. 将所有列名中的中间连字符 (-) 替换为下划线 (_).
+#       3. 保证缩进一致.
+#     例如:
+
+    ICON: ./${MC_SERVER_ICON_NAME}  # 服务器图标路径 (在 /docker-compose/servers/${MC_SERVER_NAME}/server 目录中)
+    OVERRIDE_ICON: true
+    MOTD: "${MC_SERVER_NAME} A Minecraft Server build by Docker-Compose"
+
+#    DIFFICULTY: "hard"
+#    FORCE_GAMEMODE: true
+#    HARDCORE: false
+#    SPAWN_PROTECTION: 0
+#    MODE: "survival"
+#    ONLINE_MODE: false
+#    ALLOW_FLIGHT: true
+    SYNC_CHUNK_WRITES: false
+    OP_PERMISSION_LEVEL: 3
+    EXEC_DIRECTLY: true
+    STOP_SERVER_ANNOUNCE_DELAY: 10 # 服务器关闭前的公告延迟时间 (秒) 
+    GUI: false
+
+    # 镜像文档未介绍但 MC 官网 properties 参数详解存在的参数 (配置后可能不起作用, 但万一呢)
+    ADMIN_SLOT: true
+    BROADCAST_CONSOLE_TO_OPS: true
+    REGION_FILE_COMPRESSION: "lz4"  # 其它选项: deflate(原默认), lz4, none
+
 services:
   mc-restore-backup:
-    # [______ MC Restore Backup ______]
-    #
-    # It will restore the latest backup if there is no existing server folder
+#     [______ MC Restore Backup ______]
+#     如果没有现有的服务器文件夹，它会恢复最新的备份
     image: itzg/mc-backup:latest
     container_name: mc-restore-backup
     restart: no
@@ -16,18 +50,14 @@ services:
       - mc-network
 
   mc-server:
-    # [______ MC Server ______]
-    #
-    # About mc-server Environments:
-    # It should be extended by docker compose `-f` sub command.
-    #
-    # example for Forge & server.properties:
-    # ```
-    # docker compose -f docker-compose.yml
-    # -f docker-compose.forge.yml
-    # -f docker-compose.properties.yml
-    # up -d
-    # ```
+#     [______ MC Server ______]
+#     关于 mc-server：
+#     它应该通过 docker compose -f 子命令进行扩展.
+#
+#     扩展 Forge 的示例：
+#     ```shell
+#     docker compose -f docker-compose.yml -f docker-compose.forge.yml up -d
+#     ```
     image: itzg/minecraft-server:latest
     container_name: mc-server
     depends_on:
@@ -59,6 +89,7 @@ services:
       RCON_PASSWORD: ${RCON_PASSWORD:?'[docker-compose] 未设置 RCON_PASSWORD.'}
       RCON_PORT: ${MC_RCON_PORT:?'[docker-compose] 未设置 MC_RCON_PORT.'}
       BROADCAST_RCON_TO_OPS: true
+      <<: *PROPERTIES_ENV
     ports:
       - "${MC_SERVER_PORT:?'[docker-compose][mc-server] 未设置 MC_SERVER_PORT'}:${MC_SERVER_PORT}"
       - "${MC_RCON_PORT:?'[docker-compose][mc-server] 未设置 MC_RCON_PORT.'}:${MC_RCON_PORT}"
