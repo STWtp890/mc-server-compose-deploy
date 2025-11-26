@@ -45,6 +45,10 @@ services:
     volumes:
       - ./servers/${MC_SERVER_NAME}/server:/data
     environment:
+      GENERIC_PACK: ./compose/packs/${GENERIC_PACK}
+      MODPACK: ./compose/packs/${MODPACK}
+      SKIP_GENERIC_PACK_UPDATE_CHECK: ${SKIP_GENERIC_PACK_UPDATE_CHECK:-'true'}
+      SKIP_GENERIC_PACK_CHECKSUM: ${SKIP_GENERIC_PACK_CHECKSUM:-'true'}
       EULA: true
       VERSION: ${MC_VERSION:?'[docker-compose.properties] 未设置 MC_VERSION.'} # Minecraft 版本
       INIT_MEMORY: ${MC_INIT_MEMORY:?'[docker-compose.properties] 未设置 MC_INIT_MEMORY.'}
