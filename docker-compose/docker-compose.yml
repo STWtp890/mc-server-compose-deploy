@@ -183,7 +183,7 @@ services:
         condition: service_started
     restart: unless-stopped
     volumes:
-      - ./compose/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./compose/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./servers/${MC_SERVER_NAME}/prometheus:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
