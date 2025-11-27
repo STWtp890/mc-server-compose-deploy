@@ -1,33 +1,74 @@
 # ./mc-server-compose-deploy/docker-compose.yml
-name: ${SERVER_NAME:?'[Param set] No SERVER_NAME set.'}
+
+# === BEGIN === PROPERTIES CONFIG === BEGIN === #
+# === BEGIN === PROPERTIES CONFIG === BEGIN === #
+# === BEGIN === PROPERTIES CONFIG === BEGIN === #
+x-PROPERTIES:
+  environment: &PROPERTIES_ENV
+#    ______ Minecraft 'server.properties' 参数 ______
+#    参阅链接 -> https://docker-minecraft-server.readthedocs.io/en/latest/variables/
+#    参阅链接 -> https://minecraft.wiki/w/Server.properties
+#    在这里设置 'server.properties' 参数
+#    简易列名转换规则：
+#      1. 将所有列名替换为大写字母 (A-Z).
+#      2. 将所有列名中的中间连字符 (-) 替换为下划线 (_).
+#      3. 保证缩进一致.
+#    例如:
+    ICON: ${MC_SERVER_ICON_NAME}  # 服务器图标路径 (在 /docker-compose/servers/${MC_SERVER_NAME}/server 目录中)
+    OVERRIDE_ICON: true
+    MOTD: "${MC_SERVER_NAME} A Minecraft Server build by Docker-Compose"
+
+#    DIFFICULTY: "hard"
+#    FORCE_GAMEMODE: true
+#    HARDCORE: false
+#    SPAWN_PROTECTION: 0
+#    MODE: "survival"
+#    ONLINE_MODE: false
+#    ALLOW_FLIGHT: true
+    SYNC_CHUNK_WRITES: false
+    OP_PERMISSION_LEVEL: 3
+    EXEC_DIRECTLY: true
+    STOP_SERVER_ANNOUNCE_DELAY: 10 # 服务器关闭前的公告延迟时间 (秒) 
+    GUI: false
+
+    # 镜像文档未介绍但 MC 官网 properties 参数详解存在的参数 (配置后可能不起作用, 但万一呢)
+    ADMIN_SLOT: true
+    BROADCAST_CONSOLE_TO_OPS: true
+    REGION_FILE_COMPRESSION: "lz4"  # 其它选项: deflate(原默认), lz4, none
+
+# === END === PROPERTIES CONFIG === END === #
+# === END === PROPERTIES CONFIG === END === #
+# === END === PROPERTIES CONFIG === END === #
+
+
+
+# ====== SERVICES ====== #
+# ====== SERVICES ====== #
+# ====== SERVICES ====== #
+name: ${MC_SERVER_NAME:?'[Param set] No SERVER_NAME set.'}
 services:
   mc-restore-backup:
-    # [______ MC Restore Backup ______]
-    #
-    # It will restore the latest backup if there is no existing server folder
+#     [______ MC Restore Backup ______]
+#     如果没有现有的服务器文件夹，它会恢复最新的备份
     image: itzg/mc-backup:latest
     container_name: mc-restore-backup
     restart: no
     entrypoint: restore-tar-backup
     volumes:
-      - ./servers/${SERVER_NAME}/server:/data
-      - ./servers/${SERVER_NAME}/server-backups:/backups
+      - ./servers/${MC_SERVER_NAME}/server:/data
+      - ./servers/${MC_SERVER_NAME}/server-backups:/backups
     networks:
       - mc-network
 
   mc-server:
-    # [______ MC Server ______]
-    #
-    # About mc-server Environments:
-    # It should be extended by docker compose `-f` sub command.
-    #
-    # example for Forge & server.properties:
-    # ```
-    # docker compose -f docker-compose.yml
-    # -f docker-compose.forge.yml
-    # -f docker-compose.properties.yml
-    # up -d
-    # ```
+#     [______ MC Server ______]
+#     关于 mc-server：
+#     它应该通过 docker compose -f 子命令进行扩展.
+#
+#     扩展 Forge 的示例：
+#     ```shell
+#     docker compose -f docker-compose.yml -f docker-compose.forge.yml up -d
+#     ```
     image: itzg/minecraft-server:latest
     container_name: mc-server
     depends_on:
@@ -43,8 +84,24 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./servers/${SERVER_NAME}/server:/data
-      - ./compose/config/mc-icon:/data/icon
+      - ./servers/${MC_SERVER_NAME}/server:/data
+      - ./resources/packs:/packs:ro
+    environment:
+      GENERIC_PACK: ${GENERIC_PACK:+/packs/${GENERIC_PACK}}
+      MODPACK: ${MODPACK:+/packs/${MODPACK}}
+      SKIP_GENERIC_PACK_UPDATE_CHECK: ${SKIP_GENERIC_PACK_UPDATE_CHECK:-'true'}
+      SKIP_GENERIC_PACK_CHECKSUM: ${SKIP_GENERIC_PACK_CHECKSUM:-'true'}
+      EULA: true
+      VERSION: ${MC_VERSION:?'[docker-compose.properties] 未设置 MC_VERSION.'} # Minecraft 版本
+      INIT_MEMORY: ${MC_INIT_MEMORY:?'[docker-compose.properties] 未设置 MC_INIT_MEMORY.'}
+      MAX_MEMORY: ${MC_MAX_MEMORY:-${MC_INIT_MEMORY}}
+      SERVER_NAME: ${MC_SERVER_NAME:?'[docker-compose.properties] 未设置 MC_SERVER_NAME.'}
+      SERVER_PORT: ${MC_SERVER_PORT:?'[docker-compose.properties] 未设置 MC_SERVER_PORT.'}
+      ENABLE_RCON: true
+      RCON_PASSWORD: ${RCON_PASSWORD:?'[docker-compose] 未设置 RCON_PASSWORD.'}
+      RCON_PORT: ${MC_RCON_PORT:?'[docker-compose] 未设置 MC_RCON_PORT.'}
+      BROADCAST_RCON_TO_OPS: true
+      <<: *PROPERTIES_ENV
     ports:
       - "${MC_SERVER_PORT:?'[docker-compose][mc-server] 未设置 MC_SERVER_PORT'}:${MC_SERVER_PORT}"
       - "${MC_RCON_PORT:?'[docker-compose][mc-server] 未设置 MC_RCON_PORT.'}:${MC_RCON_PORT}"
@@ -72,8 +129,8 @@ services:
       RCON_PASSWORD: ${RCON_PASSWORD:?'[MC-Backup] 未设置 RCON_PASSWORD.'}
       CRON_SCHEDULE: ${CRON_SCHEDULE:?'[MC-Backup] 未设置 CRON_SCHEDULE.'} # 例：0 */6 * * * 每 6 小时备份一次
     volumes:
-      - ./servers/${SERVER_NAME}/server:/data
-      - ./servers/${SERVER_NAME}/server-backups:/backups
+      - ./servers/${MC_SERVER_NAME}/server:/data
+      - ./servers/${MC_SERVER_NAME}/server-backups:/backups
     networks:
       - mc-network
 
@@ -138,8 +195,8 @@ services:
         condition: service_started
     restart: unless-stopped
     volumes:
-      - ./compose/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./servers/${SERVER_NAME}/prometheus:/prometheus
+      - ./resources/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./servers/${MC_SERVER_NAME}/prometheus:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -160,25 +217,20 @@ services:
     environment:
       - GF_DEFAULT_LOCALE=zh-CN
       - GF_VIEWER_LANGUAGE=zh-CN
-
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_SECURITY_ALLOW_EMBEDDING=true
       - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=false
-
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_DISABLE_LOGIN_FORM=false
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
-
       - GF_SERVER_HTTP_PORT=3000
-
       - GF_USERS_ALLOW_SIGN_UP=true
       - GF_DASHBOARDS_ALLOW_ADMIN=true
-
       - GF_EXPLORE_ENABLE=true
     volumes:
-      - ./compose/config/grafana/provisioning:/etc/grafana/provisioning
-      - ./servers/${SERVER_NAME}/grafana/data:/var/lib/grafana
+      - ./resources/config/grafana/provisioning:/etc/grafana/provisioning
+      - ./servers/${MC_SERVER_NAME}/grafana/data:/var/lib/grafana
     ports:
       - ${GF_SERVER_HTTP_PORT}:3000 # Grafana Web UI
     networks:
