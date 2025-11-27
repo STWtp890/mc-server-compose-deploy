@@ -71,21 +71,11 @@
 
 - ✅ ~~基于 `snowdreamtech/frpc` 的自定义反向代理客户端(FRP Client)~~
 
-- ✅ ~~实现通过 GenericPack 与 ModPack 导入整合包或模组包~~
+- ⬜ 实现通过 GenericPack 与 ModPack 导入整合包或模组包
 
 ---
 
 ## 二. 使用方式
-
-> ### 使用流程:
->
-> - 环境准备 —— *[💾关于环境](#1-环境)*
-> 
-> - 修改配置 —— *[💾关于配置文件](#2-关于配置文件)*
-> 
-> - 导入整合包(可选) —— *[💾导入服务器整合包](#3-导入服务器整合包)*
-> 
-> - 启动服务器 —— *[💾关于服务器启动](#4-关于服务器启动)*
 
 ### 1. 环境
 
@@ -96,20 +86,11 @@
 
 ### 2. 关于配置文件
 
-> 参阅 ***[💾如何配置或修改服务器](./docker-compose/servers/README.md)*** 中的说明进行相关操作.
+> 参阅 ***[🔗如何配置并启动服务器](./docker-compose/servers/README.md)*** 中的说明进行相关操作.
 
-> 参阅 ***[💾如何导入服务器整合包](./docker-compose/resources/packs/README.md)*** 中的说明进行相关操作.
+### 3. 关于服务器启动
 
-### 3. 导入服务器整合包
-
-> 具体操作参阅: [💾如何导入服务器整合包](./docker-compose/resources/packs/README.md)
->
-> 相关概念参阅: [🔗Minecraft Server on Docker (Java Edition): Mods and Plugins](https://docker-minecraft-server.readthedocs.io/en/latest/mods-and-plugins/#zip-file-modpack)
-
-
-### 4. 关于服务器启动
-
-###### *在尝试启动前, 确保已经完成服务器的配置与导入工作 —— [💾关于配置文件](#2-关于配置文件); [💾如何导入服务器整合包](./docker-compose/resources/packs/README.md).*
+在尝试启动前, 确保已经完成服务器的配置工作 —— ***[关于配置文件](#2-关于配置文件)***.
 
 > `-f docker-compose.yml`: 启动必选, 该文件包含了所有基础服务配置.  
 
@@ -117,7 +98,7 @@
 > `-f docker-compose.{mod_loader_type}.yml`: 可选模组加载器配置文件, 支持的类型有: `forge`, `neoForge`, `fabric`.  
 > `-f docker-compose.frpc.yml`: 可选 FRP Client 配置文件, 用于将服务器端口映射至公网.
 
-`docker-compose.yml` 等文件位于 `./docker-compose` 下, 这意味着你需要将终端的路径切换到本项目的 `./docker-compose` 文件夹. 并且确保你当前所在路径下有对应文件. 例如使用 `cd` 命令切换至该路径.
+`docker-compose.yml` 等文件位于 `./docker-compose` 下, 这意味着你需要将终端的路径切换到本项目的 `./docker-compose` 文件夹. 例如使用 `cd` 命令打开该路径.
 
 - ***启动原版 Java 服务器 (`vanilla`):***
   ```shell
@@ -128,13 +109,12 @@
   ```shell
   docker compose -f docker-compose.yml -f docker-compose.{mod_loader_type}.yml up -d
   ```
-  > 其中 `{mod_loader_type}` 应对照已有文件替换为你想使用的 ***ModLoader*** 类型 (`forge`/`neoforge`/`fabric`):
-  > 
-  > `docker-compose.forge.yml`, `docker-compose.neoForge.yml`, `docker-compose.fabric.yml`
+  其中 `{mod_loader_type}` 应替换为你想使用的 ***ModLoader*** 类型 (`forge`/`neoForge`/`fabric`)
 
-- ***启动带有 FRP Client 的 forge 模组服务器:***
+
+- ***启动带有 FRP Client 的服务器:***
   ```shell
-  docker compose -f docker-compose.yml -f docker-compose.forge.yml -f docker-compose.frpc.yml up -d
+  docker compose -f docker-compose.yml -f docker-compose.frpc.yml up -d
   ```
 
 ---
