@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     command: ["frpc", "-c", "/etc/frp/frpc.toml"]
     volumes:
-      - ./compose/config/frpc/frpc.toml:/etc/frp/frpc.toml
+      - ./resources/config/frpc/frpc.toml:/etc/frp/frpc.toml
     environment:
       MC_SERVER_PORT: ${MC_SERVER_PORT}
       MC_RCON_PORT: ${MC_RCON_PORT}

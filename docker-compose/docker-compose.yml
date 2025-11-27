@@ -5,15 +5,15 @@
 # === BEGIN === PROPERTIES CONFIG === BEGIN === #
 x-PROPERTIES:
   environment: &PROPERTIES_ENV
-#     ______ Minecraft 'server.properties' 参数 ______
-#     参阅链接 -> https://docker-minecraft-server.readthedocs.io/en/latest/variables/
-#     参阅链接 -> https://minecraft.wiki/w/Server.properties
-#     在这里设置 'server.properties' 参数
-#     简易列名转换规则：
-#       1. 将所有列名替换为大写字母 (A-Z).
-#       2. 将所有列名中的中间连字符 (-) 替换为下划线 (_).
-#       3. 保证缩进一致.
-#     例如:
+#    ______ Minecraft 'server.properties' 参数 ______
+#    参阅链接 -> https://docker-minecraft-server.readthedocs.io/en/latest/variables/
+#    参阅链接 -> https://minecraft.wiki/w/Server.properties
+#    在这里设置 'server.properties' 参数
+#    简易列名转换规则：
+#      1. 将所有列名替换为大写字母 (A-Z).
+#      2. 将所有列名中的中间连字符 (-) 替换为下划线 (_).
+#      3. 保证缩进一致.
+#    例如:
     ICON: ${MC_SERVER_ICON_NAME}  # 服务器图标路径 (在 /docker-compose/servers/${MC_SERVER_NAME}/server 目录中)
     OVERRIDE_ICON: true
     MOTD: "${MC_SERVER_NAME} A Minecraft Server build by Docker-Compose"
@@ -86,8 +86,8 @@ services:
     volumes:
       - ./servers/${MC_SERVER_NAME}/server:/data
     environment:
-      GENERIC_PACK: ./compose/packs/${GENERIC_PACK}
-      MODPACK: ./compose/packs/${MODPACK}
+      GENERIC_PACK: ./resources/packs/${GENERIC_PACK}
+      MODPACK: ./resources/packs/${MODPACK}
       SKIP_GENERIC_PACK_UPDATE_CHECK: ${SKIP_GENERIC_PACK_UPDATE_CHECK:-'true'}
       SKIP_GENERIC_PACK_CHECKSUM: ${SKIP_GENERIC_PACK_CHECKSUM:-'true'}
       EULA: true
@@ -194,7 +194,7 @@ services:
         condition: service_started
     restart: unless-stopped
     volumes:
-      - ./compose/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./resources/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./servers/${MC_SERVER_NAME}/prometheus:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -228,7 +228,7 @@ services:
       - GF_DASHBOARDS_ALLOW_ADMIN=true
       - GF_EXPLORE_ENABLE=true
     volumes:
-      - ./compose/config/grafana/provisioning:/etc/grafana/provisioning
+      - ./resources/config/grafana/provisioning:/etc/grafana/provisioning
       - ./servers/${MC_SERVER_NAME}/grafana/data:/var/lib/grafana
     ports:
       - ${GF_SERVER_HTTP_PORT}:3000 # Grafana Web UI
