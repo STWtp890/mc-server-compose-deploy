@@ -1,6 +1,8 @@
 # ./mc-server-compose-deploy/docker-compose.yml
-name: ${MC_SERVER_NAME:?'[Param set] No SERVER_NAME set.'}
 
+# === BEGIN === PROPERTIES CONFIG === BEGIN === #
+# === BEGIN === PROPERTIES CONFIG === BEGIN === #
+# === BEGIN === PROPERTIES CONFIG === BEGIN === #
 x-PROPERTIES:
   environment: &PROPERTIES_ENV
 #     ______ Minecraft 'server.properties' 参数 ______
@@ -12,8 +14,7 @@ x-PROPERTIES:
 #       2. 将所有列名中的中间连字符 (-) 替换为下划线 (_).
 #       3. 保证缩进一致.
 #     例如:
-
-    ICON: ./${MC_SERVER_ICON_NAME}  # 服务器图标路径 (在 /docker-compose/servers/${MC_SERVER_NAME}/server 目录中)
+    ICON: ${MC_SERVER_ICON_NAME}  # 服务器图标路径 (在 /docker-compose/servers/${MC_SERVER_NAME}/server 目录中)
     OVERRIDE_ICON: true
     MOTD: "${MC_SERVER_NAME} A Minecraft Server build by Docker-Compose"
 
@@ -35,6 +36,16 @@ x-PROPERTIES:
     BROADCAST_CONSOLE_TO_OPS: true
     REGION_FILE_COMPRESSION: "lz4"  # 其它选项: deflate(原默认), lz4, none
 
+# === END === PROPERTIES CONFIG === END === #
+# === END === PROPERTIES CONFIG === END === #
+# === END === PROPERTIES CONFIG === END === #
+
+
+
+# ====== SERVICES ====== #
+# ====== SERVICES ====== #
+# ====== SERVICES ====== #
+name: ${MC_SERVER_NAME:?'[Param set] No SERVER_NAME set.'}
 services:
   mc-restore-backup:
 #     [______ MC Restore Backup ______]

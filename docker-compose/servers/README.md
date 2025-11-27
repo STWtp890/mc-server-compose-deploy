@@ -1,65 +1,142 @@
-# 如何启动现有服务器
+# 如何配置并启动服务器
 
-## 1. mc-server的路径解析
+## 一. `mc-server` 配置
 
-在 docker-compose.yml 配置中, mc-server 服务的卷映射如下:
+### 1. `.env`
+
+该文件配置了 `docker-compose.yml` 所需的模板变量.
+
+当 `.env` 文件处于 `docker-compose.yml` 相同目录(或使用 `--env-file` 指定)下通过 `docker compose -f docker-compose.yml up` 命令部署 `docker-compose.yml` 的服务组时,  
+形如 `${SOME_NAME}` 的变量会被替换为 `.env` 文件中定义的 `SOME_NAME` 变量内容
+
+例如: 
+
+```dotenv
+EULA: true
+VERSION: "1.20.1"
+```
 
 ```yml
 # docker-compose.yml
-# mc-server 服务
-volumes:
-  - ./servers/${MC_SERVER_NAME}/server:/data
+services:
+  mc-server:
+    environment:
+      EULA: ${EULA}
+      VERSION: ${MC_VERSION}
 ```
 
-其中 `${MC_SERVER_NAME}` 是在 `.env` 文件中设置的环境变量, 用于指定不同的服务器名称, 同时也决定了服务器数据存储的路径.
+### 2. `docker-compose.yml` 配置 ***Minecraft server.properties***: 
 
-同时, 相对路径是参考于 `docker-compose.yml` 文件所在的目录解释的.
+该文件中提供了 ***server.properties*** 配置块:
 
-这意味着, 服务器的文件路径应在 `docker-compose.yml` 相同目录下, 并处于 `servers/${MC_SERVER_NAME}/server` 目录中.
+```yml
+# server.properties 配置块
+x-PROPERTIES: 
+  environment: &PROPERTIES_ENV
+```
 
-## 2. 修改服务器名称
+当你自行组建 ***Minecraft*** 服务器, 希望修改一些服务器配置时, 可以通过增加或删减此处变量配置实现.
 
-如果你想要启动一个不同名称的服务器, 只需在 `.env` 文件中修改 `MC_SERVER_NAME` 变量即可:
+例如你想设置 Minecraft 难度, 在线模式, 出生区块保护, 允许飞行等规则(`DIFFICULTY`, `ONLINE_MODE`, `SPAWN_PROTECTION`, `ALLOW_FLIGHT`)
+
+```yml
+x-PROPERTIES: 
+  environment: &PROPERTIES_ENV
+    DIFFICULTY: "hard"
+    ONLINE_MODE: false
+    SPAWN_PROTECTION: 0
+    ALLOW_FLIGHT: true
+```
+
+这样添加后, 通过 `docker compose -f docker-compose.yml up` 启动原版服务器, 对应的服务器规则就会根据其中设置修改 `server.properties` 内容.
+
+> 详细 `server.properties` 配置参阅:
+> - ***[🔗Minecraft Server on Docker (Java Edition): Variables](https://docker-minecraft-server.readthedocs.io/en/latest/variables/)***
+> - ***[🔗Minecraft Server Properties](https://minecraft.wiki/w/Server.properties)***
+
+---
+
+## 二. `mc-server` 的服务器路径解析
+
+一个最简服务器文件夹结构如下:
+
+> `[example]`: `[]` 扩起部分表示当前位置为应为文件夹.
+>
+> `(...)`: 表示当前文件夹还可能有其它文件或文件夹等内容.
 
 ```dotenv
 # .env 文件
 MC_SERVER_NAME="mc-docker"
 ```
 
-当你修改了 `MC_SERVER_NAME` 后, Docker 会映射到对应路径的新服务器.
-
-例如, 如果你将 `MC_SERVER_NAME` 设置为 `example_MC_SERVER_NAME` 或者 `another_MC_SERVER_NAME`, 那么服务器数据会储存在这样的文件结构:
-
 ```plaintext
-# 目录结构示例
-/docker-compose
-├── /compose
-├── /servers
-│   ├── /example_MC_SERVER_NAME    <-- 这里是新的服务器名称
-│   │   ├── /prometheus
-│   │   ├── /grafana
-│   │   ├── /server     <-- 这里存放服务器文件
-│   │   └── /server-backups
-│   └── /another_MC_SERVER_NAME    <-- 这里是新的服务器名称
-│       ├── /prometheus
-│       ├── /grafana
-│       ├── /server     <-- 这里存放服务器文件
-│       └── /server-backups
-├── /.env
-├── /docker-compose.yml
-└── /docker-compose.properties.yml
+[docker-compose]
+├── [compose]
+│   └── (...)
+├── [servers]
+│   ├── [mc-docker]         <-- 默认服务器根目录 (MC_SERVER_NAME="mc-docker")
+│   │   ├── [prometheus]
+│   │   ├── [grafana]
+│   │   ├── [server-backups]     
+│   │   └── [server]        <-- 服务器文件夹
+│   │       ├── some-icon.png
+│   │       └── (...)
+│   └── README.md           <-- 当前在读
+├── .env
+├── docker-compose.forge.yml
+├── docker-compose.yml
+└── (...)
+```
+### 1. 服务器名称与路径
+
+在 docker-compose.yml 配置中, mc-server 服务的卷映射如下:
+
+```yml
+# docker-compose.yml: mc-server
+# 相对路径对于 `docker-compose.yml` 的文件目录解释.
+volumes:
+  - ./servers/${MC_SERVER_NAME}/server:/data
+```
+挂载表示将 `docker-compose` 中 `servers/${MC_SERVER_NAME}/server` 挂载至 mc-server 容器 `/data`. 这意味着, 服务器文件路径应在 `docker-compose.yml` 所在位置下的 `servers/${MC_SERVER_NAME}/server` 目录中.
+
+如果你想要启动一个不同名称的服务器, 只需在 `.env` 文件中修改 `MC_SERVER_NAME` 变量即可, 当你修改了 `MC_SERVER_NAME` 后, Docker 会映射到对应路径的新服务器.
+
+例如, 如果你先后部署两个服务器将 `MC_SERVER_NAME` 设置分别为 `example_name` 或者 `another_name`, 那么服务器数据会储存在这样的文件结构:
+
+```dotenv
+MC_SERVER_NAME="example_name"
 ```
 
-> 如果你不想或懒得修改服务器名称, 确认好 `.env` 文件中的版本配置正确后, 直接覆盖至服务器根目录下的 `server` 文件夹也可以.
+```dotenv
+MC_SERVER_NAME="another_name"
+```
 
-## 3. 使用现有服务器
+```plaintext
+[docker-compose]
+├── [compose]
+│   └── (...)
+├── [servers]
+│   ├── [example_name]      <-- 服务器根目录 (MC_SERVER_NAME="example_name")
+│   │   ├── [prometheus]
+│   │   ├── [grafana]
+│   │   ├── [server]        <-- `example_name` 服务器文件
+│   │   │   ├── some-icon.png
+│   │   │   └── (...)
+│   │   └── [server-backups]
+│   ├── [another_name]      <-- 服务器根目录 (MC_SERVER_NAME="another_name")
+│   │   ├── [prometheus]
+│   │   ├── [grafana]
+│   │   ├── [server]        <-- `another_name` 服务器文件
+│   │   │   ├── some-icon.png
+│   │   │   └── (...)
+│   │   └── [server-backups]
+│   └── README.md           <-- 当前在读
+│
+└── (...)
+```
 
-如果你已经有一个现有的 Minecraft 服务器, 并且想要使用这个 Docker 配置来启动它, 参考以下步骤操作:
+---
 
-1. 准备好你的现有服务器文件夹, 确保它包含所有必要的 Minecraft 服务器文件.
+## 三. 导入服务器整合包
 
-2. 确认现有服务器的版本, 并修改 `.env` 文件中的 `MC_VERSION` 变量以匹配你的服务器版本.
-
-3. 将现有服务器文件夹复制或移动到 `docker-compose/servers/${MC_SERVER_NAME}/server` 目录下. 其中 `${MC_SERVER_NAME}` 是你在 `.env` 文件中设置的服务器名称.
-
-4. 启动 Docker 容器
+### 
