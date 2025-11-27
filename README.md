@@ -71,7 +71,7 @@
 
 - ✅ ~~基于 `snowdreamtech/frpc` 的自定义反向代理客户端(FRP Client)~~
 
-- ⬜ 实现通过 GenericPack 与 ModPack 导入整合包或模组包
+- ✅ 实现通过 GenericPack 与 ModPack 导入整合包或模组包
 
 ---
 
