@@ -57,6 +57,7 @@ services:
     volumes:
       - ./servers/${MC_SERVER_NAME}/server:/data
       - ./servers/${MC_SERVER_NAME}/server-backups:/backups
+      - ./resources/packs:/packs:ro
     networks:
       - mc-network
 
@@ -86,14 +87,14 @@ services:
     volumes:
       - ./servers/${MC_SERVER_NAME}/server:/data
     environment:
-      GENERIC_PACK: ./resources/packs/${GENERIC_PACK}
-      MODPACK: ./resources/packs/${MODPACK}
+      GENERIC_PACK: ${GENERIC_PACK:+'./mc-packs/${GENERIC_PACK}'}
+      MODPACK: ${MODPACK:+'./mc-packs/${MODPACK}'}
       SKIP_GENERIC_PACK_UPDATE_CHECK: ${SKIP_GENERIC_PACK_UPDATE_CHECK:-'true'}
       SKIP_GENERIC_PACK_CHECKSUM: ${SKIP_GENERIC_PACK_CHECKSUM:-'true'}
       EULA: true
       VERSION: ${MC_VERSION:?'[docker-compose.properties] 未设置 MC_VERSION.'} # Minecraft 版本
       INIT_MEMORY: ${MC_INIT_MEMORY:?'[docker-compose.properties] 未设置 MC_INIT_MEMORY.'}
-      MAX_MEMORY: ${MC_MAX_MEMORY}
+      MAX_MEMORY: ${MC_MAX_MEMORY:-${MC_INIT_MEMORY}}
       SERVER_NAME: ${MC_SERVER_NAME:?'[docker-compose.properties] 未设置 MC_SERVER_NAME.'}
       SERVER_PORT: ${MC_SERVER_PORT:?'[docker-compose.properties] 未设置 MC_SERVER_PORT.'}
       ENABLE_RCON: true
