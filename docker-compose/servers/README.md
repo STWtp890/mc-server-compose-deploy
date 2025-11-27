@@ -1,4 +1,4 @@
-# 如何配置并启动服务器
+# 如何配置或修改服务器
 
 ## 一. `mc-server` 配置
 
@@ -69,7 +69,7 @@ x-PROPERTIES:
 MC_SERVER_NAME="mc-docker"
 ```
 
-```plaintext
+```text
 [docker-compose]
 ├── [compose]
 │   └── (...)
@@ -87,7 +87,7 @@ MC_SERVER_NAME="mc-docker"
 ├── docker-compose.yml
 └── (...)
 ```
-### 1. 服务器名称与路径
+### 服务器名称与路径
 
 在 docker-compose.yml 配置中, mc-server 服务的卷映射如下:
 
@@ -101,7 +101,7 @@ volumes:
 
 如果你想要启动一个不同名称的服务器, 只需在 `.env` 文件中修改 `MC_SERVER_NAME` 变量即可, 当你修改了 `MC_SERVER_NAME` 后, Docker 会映射到对应路径的新服务器.
 
-例如, 如果你先后部署两个服务器将 `MC_SERVER_NAME` 设置分别为 `example_name` 或者 `another_name`, 那么会储存在这样的文件结构:
+例如, 如果你修改 `MC_SERVER_NAME` 的默认值 `mc-docker` 为 `example_name` , 那么文件结构会变为:
 
 ```dotenv
 MC_SERVER_NAME="example_name"
@@ -119,13 +119,6 @@ MC_SERVER_NAME="another_name"
 │   ├── [example_name]      <-- 服务器根目录 (MC_SERVER_NAME="example_name")
 │   │   ├── [prometheus]
 │   │   ├── [grafana]
-│   │   ├── [server]        <-- `example_name` 服务器文件
-│   │   │   ├── some-icon.png
-│   │   │   └── (...)
-│   │   └── [server-backups]
-│   ├── [another_name]      <-- 服务器根目录 (MC_SERVER_NAME="another_name")
-│   │   ├── [prometheus]
-│   │   ├── [grafana]
 │   │   ├── [server]        <-- `another_name` 服务器文件
 │   │   │   ├── some-icon.png
 │   │   │   └── (...)
@@ -136,9 +129,3 @@ MC_SERVER_NAME="another_name"
 ```
 
 ---
-
-## 三. 导入服务器整合包
-
-> 具体操作参阅: [🔗如何导入服务器整合包](../resources/packs/README.md)
->
-> 相关概念参阅: [🔗Minecraft Server on Docker (Java Edition): Mods and Plugins](https://docker-minecraft-server.readthedocs.io/en/latest/mods-and-plugins/#zip-file-modpack)
