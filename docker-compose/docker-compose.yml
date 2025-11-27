@@ -57,7 +57,6 @@ services:
     volumes:
       - ./servers/${MC_SERVER_NAME}/server:/data
       - ./servers/${MC_SERVER_NAME}/server-backups:/backups
-      - ./resources/packs:/packs:ro
     networks:
       - mc-network
 
@@ -86,9 +85,10 @@ services:
     tty: true
     volumes:
       - ./servers/${MC_SERVER_NAME}/server:/data
+      - ./resources/packs:/packs:ro
     environment:
-      GENERIC_PACK: ${GENERIC_PACK:+'./mc-packs/${GENERIC_PACK}'}
-      MODPACK: ${MODPACK:+'./mc-packs/${MODPACK}'}
+      GENERIC_PACK: ${GENERIC_PACK:+/packs/${GENERIC_PACK}}
+      MODPACK: ${MODPACK:+/packs/${MODPACK}}
       SKIP_GENERIC_PACK_UPDATE_CHECK: ${SKIP_GENERIC_PACK_UPDATE_CHECK:-'true'}
       SKIP_GENERIC_PACK_CHECKSUM: ${SKIP_GENERIC_PACK_CHECKSUM:-'true'}
       EULA: true
